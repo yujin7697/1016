@@ -50,8 +50,6 @@ public class BoardController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
 
-
-
         // UserRepository를 사용하여 사용자 정보 가져오기
         User user = userRepository.findById(email).get();
 

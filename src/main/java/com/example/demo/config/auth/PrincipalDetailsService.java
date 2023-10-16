@@ -44,6 +44,8 @@ public class PrincipalDetailsService implements UserDetailsService {
 		PrincipalDetails principalDetails = new PrincipalDetails();
 		principalDetails.setUser(dto);
 
+		System.out.println("loadUserByUsername's dto : "+dto);
+
 		return principalDetails;
 
 	}

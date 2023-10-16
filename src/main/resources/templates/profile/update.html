@@ -228,8 +228,6 @@
 
         </div>
 
-
-        <form action="/profile/update" method="POST">
             이메일(ID) : <span sec:authentication="principal.username"></span>
             <br/>
             비밀번호 : <a href="/leave">비밀번호 변경하기</a>
@@ -243,13 +241,11 @@
             <br/>
 
             <h5 for="birthInput">생년월일</h5>
-            <input name="newBirth" id="birthInput" autocomplete="off" th:value="${dto.birth}">
+            <input name="newBirth" id="birthInput" autocomplete="off" th:value="${dto.birth}" readonly>
             <br/>
             <label>휴대폰 :</label>
             <input type="text" id="phoneInput" name="newPhone" th:value="${dto.phone}">
             <br/>
-
-
 
             <h5>주소 :</h5>
 
@@ -258,8 +254,7 @@
             <input type="text" class="form-control addr1" id="addr1" name="newAddr1" th:value="${dto.addr1}"><br/>
             <input type="text" id="addr2" name="newAddr2" th:value="${dto.addr2}">
             <br/>
-            <button type="submit">수정</button>
-        </form>
+            <button type="submit" id="updateButton">수정</button>
 
         <div class="out">
             <a href="/profile/leave_auth">회원탈퇴</a>
@@ -367,6 +362,44 @@
                          location.reload();
                      })
             });
+
+</script>
+
+<script>
+// 프로필 업데이트 함수
+
+function updateProfile() {
+    const nickname = document.getElementById('nickname').value;
+    const newBirth = document.getElementById('birthInput').value;
+    const newPhone = document.getElementById('phoneInput').value;
+    const newZipcode = document.getElementById('zipcode').value;
+    const newAddr1 = document.getElementById('addr1').value;
+    const newAddr2 = document.getElementById('addr2').value;
+
+    const requestBody = {
+        nickname: nickname,
+        birth: newBirth,
+        phone: newPhone,
+        zipcode: newZipcode,
+        addr1: newAddr1,
+        addr2: newAddr2
+    };
+
+    // 서버에 비동기 요청을 보냅니다.
+    axios.post('/profile/update', requestBody)
+        .then(response => {
+            console.log('프로필이 성공적으로 업데이트되었습니다.', response);
+            // 여기에서 추가적인 동작을 수행할 수 있습니다.
+        })
+        .catch(error => {
+            alert('프로필 업데이트 중 오류가 발생했습니다: ' + error.message);
+            console.error('프로필 업데이트 중 오류 발생:', error);
+        });
+}
+
+// 프로필 업데이트 버튼 클릭 이벤트에 updateProfile 함수를 연결합니다.
+const updateButton = document.getElementById('updateButton');
+updateButton.addEventListener('click', updateProfile);
 
 </script>
 

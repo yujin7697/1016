@@ -61,6 +61,7 @@ public class UserDto {
 	public static User dtoToEntity(UserDto dto){
 		User user = User.builder()
 				.email(dto.getEmail())
+				.name(dto.getName())
 				.nickname(dto.getNickname())
 				.password(dto.getPassword())
 				.role(dto.getRole())
@@ -68,7 +69,10 @@ public class UserDto {
 				.zipcode(dto.getZipcode())
 				.addr1(dto.getAddr1())
 				.addr2(dto.getAddr2())
+				.birth(dto.getBirth())
 				.profile(dto.getProfile())
+				.question(dto.getQuestion())
+				.answer(dto.getAnswer())
 				.build();
 		return user;
 	}

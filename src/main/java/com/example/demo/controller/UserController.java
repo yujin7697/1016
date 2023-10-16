@@ -10,20 +10,17 @@ import com.example.demo.domain.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-
+import org.springframework.web.bind.annotation.*;
 
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -62,30 +59,13 @@ public class UserController {
 
 		dto.setRole("ROLE_USER");
 		dto.setPassword( passwordEncoder.encode(dto.getPassword()) );
+		dto.setProfile("/images/basic_profile.png");
 
-		User user = new User();
-
-		user.setEmail(dto.getEmail());
-		user.setPassword(dto.getPassword());
-		user.setNickname(dto.getNickname());
-		user.setName(dto.getName());
-		user.setZipcode(dto.getZipcode());
-		user.setAddr1(dto.getAddr1());
-		user.setAddr2(dto.getAddr2());
-		user.setBirth(dto.getBirth());
-		user.setPhone(dto.getPhone());
-		user.setQuestion(dto.getQuestion());
-		user.setAnswer(dto.getAnswer());
-		user.setProvider(dto.getProvider());
-		user.setProviderId(dto.getProviderId());
-		user.setProfile("/images/basic_profile.png");
-		user.setRole(dto.getRole());
+		User user = UserDto.dtoToEntity(dto);
 
 		userRepository.save(user);
 
-		System.out.println("addr1 :" + user.getAddr1());
-		System.out.println("addr2 : " + user.getAddr2());
-		System.out.println("zipcode :" + user.getZipcode());
+		System.out.println("join's user : "+user);
 		//04
 		return "redirect:login?msg=Join_Success!";
 
@@ -131,60 +111,56 @@ public class UserController {
 
 	@GetMapping("/profile/update")
 	public String showInfo(Model model) {
+
 		// 현재 인증된 사용자의 이메일 가져오기
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String email = authentication.getName();
 
-		// UserDto 객체 생성
-		UserDto dto = new UserDto();
-
 		// UserRepository를 사용하여 사용자 정보 가져오기
 		User user = userRepository.findByEmail(email);
 
-		// 사용자 정보에서 닉네임을 가져와서 설정
-		if (user != null) {
-			dto.setNickname(user.getNickname());
-			dto.setName(user.getName());
-			dto.setPassword(user.getPassword());
-			dto.setBirth(user.getBirth());
-			dto.setPhone(user.getPhone());
-			dto.setZipcode(user.getZipcode());
-			dto.setAddr1(user.getAddr1());
-			dto.setAddr2(user.getAddr2());
-			dto.setProfile(user.getProfile());
-		}
+		System.out.println("showInfo's user : "+user);
 
-		model.addAttribute("dto", dto);
+//		// 사용자 정보에서 닉네임을 가져와서 설정
+//		if (user != null) {
+//			dto.setNickname(user.getNickname());
+//			dto.setName(user.getName());
+//			dto.setPassword(user.getPassword());
+//			dto.setBirth(user.getBirth());
+//			dto.setPhone(user.getPhone());
+//			dto.setZipcode(user.getZipcode());
+//			dto.setAddr1(user.getAddr1());
+//			dto.setAddr2(user.getAddr2());
+//			dto.setProfile(user.getProfile());
+//		}
+
+		model.addAttribute("dto", user);
 
 		return "profile/update";
 	}
 
 	@PostMapping("/profile/update")
-	public String UserUpdate(@RequestParam("newNickname") String newNickname,
-							 @RequestParam("newBirth") String newBirth,
-							 @RequestParam("newPhone") String newPhone,
-							 @RequestParam("newZipcode") String newZipcode,
-							 @RequestParam("newAddr1") String newAddr1,
-							 @RequestParam("newAddr2") String newAddr2,
-							 RedirectAttributes redirectAttributes,
-							 Model model) {
-		log.info("UserUpdate POST/ post");
+	public ResponseEntity<String> updateProfile(HttpServletRequest request) {
+		try {
+			String username = request.getParameter("username");
+			String nickname = request.getParameter("nickname");
+			String birth = request.getParameter("birth");
+			String phone = request.getParameter("phone");
+			String zipcode = request.getParameter("zipcode");
+			String addr1 = request.getParameter("addr1");
+			String addr2 = request.getParameter("addr2");
 
-		// 현재 인증된 사용자의 이메일 가져오기
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		String email = authentication.getName();
+			// 이후에 userService.updateProfile() 메서드를 호출하여 데이터를 업데이트하고 반환값을 받아옵니다.
+			User updatedUser = userService.UserUpdate(username, nickname, birth, phone, zipcode, addr1, addr2);
 
-
-
-		boolean isUpdate = userService.UserUpdate(email,newNickname, newBirth, newPhone, newZipcode,newAddr1, newAddr2);
-
-		if (isUpdate) {
-			redirectAttributes.addFlashAttribute("successMessage", "Nickname updated successfully.");
-		} else {
-			redirectAttributes.addFlashAttribute("errorMessage", "Failed to update nickname.");
+			// 프로필 업데이트 로직을 수행한 후에 적절한 응답을 반환합니다.
+			// 성공적으로 업데이트되었을 경우
+			return ResponseEntity.ok("Profile updated successfully!");
+		}catch(Exception e) {
+			// 실패했을 경우 (예: 유효성 검사 실패 등)
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to update profile");
 		}
 
-		return "redirect:update";
 	}
 
 	@GetMapping("/mypage")

@@ -35,7 +35,7 @@ public class BoardService {
 
 
 
-    private String uploadDir = "C:/Users/Administrator/Downloads/1016/hamohamo/src/main/resources/static/images";
+    private String uploadDir = "C:/Users/User/Downloads/1016/src/main/resources/static/images";
 
     @Autowired
     private BoardRepository boardRepository;

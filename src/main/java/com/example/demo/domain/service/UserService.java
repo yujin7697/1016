@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 
+import javax.persistence.EntityNotFoundException;
 import javax.servlet.http.HttpServletRequest;
 import java.sql.SQLException;
 import java.util.List;
@@ -24,30 +25,18 @@ public class UserService {
     private PasswordEncoder passwordEncoder; // PasswordEncoder 주입
 
     @Transactional(rollbackFor = SQLException.class)
-    public Boolean UserUpdate(String email, String newNickname, String newBirth, String newPhone, String newZipcode, String newAddr1, String newAddr2){
-        try {
-            User user = userRepository.findByEmail(email);
+    public User UserUpdate(String username, String nickname, String birth, String phone, String zipcode, String addr1, String addr2) {
+        User user = userRepository.findById(username)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with username: " + username));
 
-            if (user != null) {
-                user.setNickname(newNickname);
-                user.setBirth(newBirth);
-                user.setPhone(newPhone);
-                user.setZipcode(newZipcode);
-                user.setAddr1(newAddr1);
-                user.setAddr2(newAddr2);
+        user.setNickname(nickname);
+        user.setBirth(birth);
+        user.setPhone(phone);
+        user.setZipcode(zipcode);
+        user.setAddr1(addr1);
+        user.setAddr2(addr2);
 
-
-                userRepository.save(user);
-                System.out.println("user: " +user);
-                return true;
-            } else {
-                return false; // 사용자를 찾지 못한 경우
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false; // 업데이트 중 예외 발생
-        }
-
+        return userRepository.save(user);
     }
 
     @Transactional
