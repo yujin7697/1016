@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.config.auth.PrincipalDetails;
 import com.example.demo.domain.dto.UserDto;
 import com.example.demo.domain.entity.Board;
 import com.example.demo.domain.entity.User;
@@ -7,6 +8,8 @@ import com.example.demo.domain.repository.BoardRepository;
 import com.example.demo.domain.repository.UserRepository;
 import com.example.demo.domain.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,9 +23,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.io.IOException;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
@@ -192,6 +199,7 @@ public class UserController {
 
 		// UserDto 객체 생성
 		UserDto dto = UserDto.EntityToDto(user);
+		
 
 		// 사용자 정보에서 닉네임을 가져와서 설정
 		if (user != null) {
@@ -315,6 +323,78 @@ public class UserController {
 		model.addAttribute("dto", dto);
 //		------------------------------------------------------------
 		return "search-nickname";
+	}
+
+	//프로필이미지 업로드
+
+	@Autowired
+	private ResourceLoader resourceLoader;
+
+	@PostMapping(value="/user/profileimage/upload")
+	public @ResponseBody String profileimageUpload(MultipartFile[] file, Authentication authentication) throws IOException {
+		log.info("POST  /user/profileimage/upload file : " + file);
+
+
+		//저장위치 /resources/static/images/계정명폴더/파일명
+		//폴더 경로 확인
+		Resource resource = resourceLoader.getResource("classpath:static/images");
+
+		File getfiles = resource.getFile();
+		String absolutePath = getfiles.getAbsolutePath() + "/user";
+		System.out.println("정적 자원 경로: " + absolutePath);
+
+
+		//접속 유저명 받기
+		PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+		UserDto userDto = principalDetails.getUser();
+		String username = userDto.getEmail();
+		System.out.println("userDto : " + userDto);
+		//저장 폴더 지정
+		String uploadPath = absolutePath + File.separator + username;
+		File dir = new File(uploadPath);
+		if(!dir.exists()) {
+			dir.mkdirs();
+		}
+		else
+		{
+			//기존 파일 제거
+			File[] files = dir.listFiles();
+			for(File rmfile : files){
+				rmfile.delete();
+			}
+		}
+
+
+		System.out.println("--------------------");
+		System.out.println("FILE NAME : " + file[0].getOriginalFilename());
+		System.out.println("FILE SIZE : " + file[0].getSize() + " Byte");
+		System.out.println("--------------------");
+
+
+
+
+		//파일명 추출
+		String filename = file[0].getOriginalFilename();
+		//파일객체 생성
+		File fileobj = new File(uploadPath,filename);
+		//업로드
+		file[0].transferTo(fileobj);
+
+
+		//Authentication에도 변경 정보 넣기
+		// http://localhost:8080/images/user/+username/+filename
+
+		userDto.setProfile("http://localhost:8080/images/user/" + username+"/"+filename);
+		principalDetails.setUser(userDto);
+
+		//DB에도 넣기
+		System.out.println("userDto : "+userDto);
+		userService.updateProfile(userDto);
+
+
+
+		return "ok";
+
 	}
 
 

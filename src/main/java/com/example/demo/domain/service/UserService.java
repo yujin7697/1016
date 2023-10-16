@@ -100,5 +100,11 @@ public class UserService {
     }
 
 
+    public void updateProfile(UserDto dto) {
+
+        User user = UserDto.dtoToEntity(dto);
+
+        userRepository.save(user);
+    }
 
 }

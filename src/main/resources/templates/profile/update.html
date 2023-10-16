@@ -221,13 +221,10 @@
                 <img th:src="${dto.profile}" style="width:70px;height:70px;border-radius:50%;" />
             </div>
 
-            <form id="profileUploadForm" action="/uploadProfile" method="post" enctype="multipart/form-data">
-                <div class="mb-3">
-                    <label for="formFileSm" class="form-label">프로필 사진 변경</label>
-                    <input class="form-control form-control-sm" id="formFileSm" type="file" name="profileImage" accept="image/*">
-                </div>
-                <input class="img-ok" type="submit" value="변경하기">
-            </form>
+            <div class="mb-3">
+                <label for="imagechange" class="form-label">프로필 사진 변경</label>
+                <input class="form-control form-control-sm" id="imagechange" type="file" name="profileImage" accept="image/*">
+            </div>
 
         </div>
 
@@ -352,6 +349,25 @@
             }).open();
 
     });
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.5.1/axios.min.js" integrity="sha512-emSwuKiMyYedRwflbZB2ghzX8Cw8fmNVgZ6yQNNXXagFzFOaQmbvQ1vmDkddHjm5AITcBIZfC7k4ShQSjgPAmQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+    const fileInput = document.getElementById('imagechange');
+              fileInput.addEventListener('change', function () {
+                 const formData = new FormData();
+                 const fileInput = document.getElementById('imagechange');
+                 const file = fileInput.files[0];
+                 formData.append('file', file, file.name);
+
+
+                     axios.post("/user/profileimage/upload",formData,{headers: { 'Content-Type': 'multipart/form-data'} })
+                     .then(response=>{
+                         console.log(response);
+                         location.reload();
+                     })
+            });
+
 </script>
 
 </body>
