@@ -35,7 +35,7 @@ public class BoardService {
 
 
 
-    private String uploadDir = "C:/Users/Administrator/Desktop/망고(휴지통에 넣지말아주세요)/hamo/hamohamo/src/main/resources/static/images";
+    private String uploadDir = "C:/Users/Administrator/Downloads/1016/hamohamo/src/main/resources/static/images";
 
     @Autowired
     private BoardRepository boardRepository;
@@ -100,19 +100,6 @@ public class BoardService {
                 //filenames 저장
                 filenames.add(filename);
                 filesizes.add(file.getSize()+"");
-
-//                //섬네일이미지 파일 만들기
-//
-//                File thumbnailFile = new File(path, "s_" + filename);
-//
-//                BufferedImage bo_img = ImageIO.read(fileobj);
-//                double ratio = 3;
-//                int width = (int) (bo_img.getWidth() / ratio);
-//                int height = (int) (bo_img.getHeight() / ratio);
-//
-//                Thumbnails.of(fileobj)
-//                        .size(width, height)
-//                        .toFile(thumbnailFile);
             }
         }
 
