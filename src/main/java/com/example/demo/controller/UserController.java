@@ -144,14 +144,13 @@ public class UserController {
 		try {
 			String username = request.getParameter("username");
 			String nickname = request.getParameter("nickname");
-			String birth = request.getParameter("birth");
 			String phone = request.getParameter("phone");
 			String zipcode = request.getParameter("zipcode");
 			String addr1 = request.getParameter("addr1");
 			String addr2 = request.getParameter("addr2");
 
 			// 이후에 userService.updateProfile() 메서드를 호출하여 데이터를 업데이트하고 반환값을 받아옵니다.
-			User updatedUser = userService.UserUpdate(username, nickname, birth, phone, zipcode, addr1, addr2);
+			User updatedUser = userService.UserUpdate(username, nickname, phone, zipcode, addr1, addr2);
 
 			// 프로필 업데이트 로직을 수행한 후에 적절한 응답을 반환합니다.
 			// 성공적으로 업데이트되었을 경우
@@ -319,14 +318,18 @@ public class UserController {
 		String absolutePath = getfiles.getAbsolutePath() + "/user";
 		System.out.println("정적 자원 경로: " + absolutePath);
 
-
 		//접속 유저명 받기
-		PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
-		UserDto userDto = principalDetails.getUser();
-		String username = userDto.getEmail();
-		System.out.println("userDto : " + userDto);
+		authentication = SecurityContextHolder.getContext().getAuthentication();
+		String email = authentication.getName();
+
+		// UserRepository를 사용하여 사용자 정보 가져오기
+		User user = userRepository.findByEmail(email);
+
+		System.out.println("showInfo's user : "+user);
+
+
 		//저장 폴더 지정
-		String uploadPath = absolutePath + File.separator + username;
+		String uploadPath = absolutePath + File.separator + email;
 		File dir = new File(uploadPath);
 		if(!dir.exists()) {
 			dir.mkdirs();
@@ -360,13 +363,11 @@ public class UserController {
 		//Authentication에도 변경 정보 넣기
 		// http://localhost:8080/images/user/+username/+filename
 
-		userDto.setProfile("http://localhost:8080/images/user/" + username+"/"+filename);
-		principalDetails.setUser(userDto);
+		user.setProfile("http://localhost:8080/images/user/" + email+"/"+filename);
 
 		//DB에도 넣기
-		System.out.println("userDto : "+userDto);
-		userService.updateProfile(userDto);
-
+		System.out.println("userDto : "+user);
+		userService.updateProfile(user);
 
 
 		return "ok";

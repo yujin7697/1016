@@ -25,12 +25,11 @@ public class UserService {
     private PasswordEncoder passwordEncoder; // PasswordEncoder 주입
 
     @Transactional(rollbackFor = SQLException.class)
-    public User UserUpdate(String username, String nickname, String birth, String phone, String zipcode, String addr1, String addr2) {
+    public User UserUpdate(String username, String nickname, String phone, String zipcode, String addr1, String addr2) {
         User user = userRepository.findById(username)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with username: " + username));
 
         user.setNickname(nickname);
-        user.setBirth(birth);
         user.setPhone(phone);
         user.setZipcode(zipcode);
         user.setAddr1(addr1);
@@ -89,9 +88,7 @@ public class UserService {
     }
 
 
-    public void updateProfile(UserDto dto) {
-
-        User user = UserDto.dtoToEntity(dto);
+    public void updateProfile(User user) {
 
         userRepository.save(user);
     }

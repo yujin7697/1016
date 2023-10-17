@@ -240,8 +240,7 @@
             이름 : <input th:value="${dto.name}" readonly/>
             <br/>
 
-            <h5 for="birthInput">생년월일</h5>
-            <input name="newBirth" id="birthInput" autocomplete="off" th:value="${dto.birth}" readonly>
+            생일 : <input th:value="${dto.birth}" readonly/>
             <br/>
             <label>휴대폰 :</label>
             <input type="text" id="phoneInput" name="newPhone" th:value="${dto.phone}">
@@ -307,16 +306,6 @@
 
 });
 
-    <!--    생년월일 입력 필드에 Datepicker를 적용합니다.-->
-        $(function() {
-            $("#birthInput").datepicker({
-                dateFormat: "yy-mm-dd", // 날짜 형식 설정 (연도-월-일)
-                changeMonth: true,      // 월 선택 가능
-                changeYear: true,       // 연도 선택 가능
-                yearRange: "c-100:c+10" // 년도 선택 범위 설정
-            });
-        });
-
 </script>
 
 <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
@@ -355,7 +344,6 @@
                  const file = fileInput.files[0];
                  formData.append('file', file, file.name);
 
-
                      axios.post("/user/profileimage/upload",formData,{headers: { 'Content-Type': 'multipart/form-data'} })
                      .then(response=>{
                          console.log(response);
@@ -370,7 +358,6 @@
 
 function updateProfile() {
     const nickname = document.getElementById('nickname').value;
-    const newBirth = document.getElementById('birthInput').value;
     const newPhone = document.getElementById('phoneInput').value;
     const newZipcode = document.getElementById('zipcode').value;
     const newAddr1 = document.getElementById('addr1').value;
@@ -378,7 +365,6 @@ function updateProfile() {
 
     const requestBody = {
         nickname: nickname,
-        birth: newBirth,
         phone: newPhone,
         zipcode: newZipcode,
         addr1: newAddr1,

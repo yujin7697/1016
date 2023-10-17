@@ -12,6 +12,7 @@ import com.example.demo.domain.repository.HeartRepository;
 import com.example.demo.domain.repository.ReplyRepository;
 import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -46,6 +47,9 @@ public class BoardService {
     @Autowired
     private HeartRepository heartRepository;
 
+    @Autowired
+    private ResourceLoader resourceLoader;
+
     @Transactional(rollbackFor = SQLException.class)
     public boolean addBoard(BoardDto dto) throws IOException {
         System.out.println("upload File Count : " +dto.getFiles().length);
@@ -73,7 +77,7 @@ public class BoardService {
             // 이메일과 UUID 추출
             String extractedEmail = dto.getEmail();
 
-            // 이메일과 UUID를 이용하여 디렉토리 경로 생성
+            // 이메일 이용하여 디렉토리 경로 생성
             String dirPath = "http://localhost:8080/images/" + extractedEmail;
 
             if(!dir.exists()) {
